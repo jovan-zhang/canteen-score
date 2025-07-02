@@ -1,5 +1,9 @@
 # 校园食堂菜品打分系统
 
+[![GitHub stars](https://img.shields.io/github/stars/jovan-zhang/canteen-score.svg)](https://github.com/jovan-zhang/canteen-score/stargazers)
+[![GitHub forks](https://img.shields.io/github/forks/jovan-zhang/canteen-score.svg)](https://github.com/jovan-zhang/canteen-score/network)
+[![GitHub issues](https://img.shields.io/github/issues/jovan-zhang/canteen-score.svg)](https://github.com/jovan-zhang/canteen-score/issues)
+
 ## 项目简介
 
 这是一个基于Flask的校园食堂菜品打分系统，为学生提供便捷的菜品评价平台，同时为食堂管理方提供数据分析工具。
@@ -42,8 +46,8 @@
 ### 1. 环境准备
 
 ```bash
-# 克隆项目（如果是从仓库克隆）
-git clone <repository-url>
+# 克隆项目
+git clone https://github.com/jovan-zhang/canteen-score.git
 cd canteen-score
 
 # 创建虚拟环境
@@ -142,13 +146,13 @@ python run.py
 - **Body**: 
 ```json
 {
-  "overall_rating": 4.5,
-  "taste_rating": 4.0,
-  "portion_rating": 4.5,
-  "value_rating": 4.0,
-  "service_rating": 4.5,
-  "comment": "string",
-  "images": ["string"]
+  "overallRating": 4,
+  "tasteRating": 4,
+  "portionRating": 4,
+  "valueRating": 4,
+  "serviceRating": 4,
+  "content": "评价内容",
+  "images": ["image1.jpg", "image2.jpg"]
 }
 ```
 
@@ -236,29 +240,32 @@ python run.py
 
 ```
 canteen-score/
-├── app.py              # Flask应用主文件
-├── run.py              # 启动脚本
-├── config.py           # 配置文件
-├── models.py           # 数据库模型
-├── routes.py           # 用户API路由
-├── admin_routes.py     # 管理员API路由
-├── requirements.txt    # Python依赖包
-├── test_api.py         # API测试脚本
-├── .env.example        # 环境配置示例
-├── README.md           # 项目说明
-├── 需求文档.md         # 详细需求文档
-└── static/
-    └── uploads/        # 上传文件目录
-        ├── canteens/   # 食堂图片
-        ├── windows/    # 窗口图片
-        ├── dishes/     # 菜品图片
-        └── avatars/    # 用户头像
+├── app.py                  # Flask应用主文件
+├── run.py                  # 启动脚本
+├── config.py               # 配置文件
+├── models.py               # 数据库模型
+├── routes.py               # 用户API路由
+├── admin_routes.py         # 管理员API路由
+├── requirements.txt        # Python依赖包
+├── .env.example            # 环境配置示例
+├── README.md               # 项目说明
+├── 需求文档.md             # 详细需求文档
+├── test/                   # 测试相关文件
+│   ├── test_api.py         # API测试脚本
+│   ├── postman_collection.json     # Postman测试集合
+│   ├── postman_environment.json    # Postman环境变量
+│   ├── POSTMAN_测试指南.md          # Postman测试说明
+│   └── 测试检查清单.md              # 测试检查清单
+├── static/                 # 静态文件目录
+│   └── uploads/            # 上传文件目录
+└── instance/               # 实例文件目录
+    └── canteen_score.db    # SQLite数据库文件
 ```
 
 ## 数据库模型
 
 ### 用户表 (User)
-- id, username, nickname, password_hash, avatar, is_admin, created_at
+- id, username, nickname, password_hash, avatar, role, status, created_at
 
 ### 食堂表 (Canteen)
 - id, name, location, business_hours, contact, description, images, created_at
@@ -270,7 +277,7 @@ canteen-score/
 - id, window_id, name, price, category, description, images, is_available, created_at
 
 ### 评价表 (Review)
-- id, user_id, dish_id, overall_rating, taste_rating, portion_rating, value_rating, service_rating, comment, images, like_count, reply_count, created_at
+- id, user_id, dish_id, overall_rating, taste_rating, portion_rating, value_rating, service_rating, content, images, created_at
 
 ### 评价回复表 (ReviewReply)
 - id, user_id, review_id, content, created_at
@@ -280,6 +287,25 @@ canteen-score/
 
 ## 测试
 
+### Postman自动化测试
+
+本项目提供了完整的Postman测试集合：
+
+1. **导入测试集合**:
+   - 导入 `test/postman_collection.json`
+   - 导入 `test/postman_environment.json`
+
+2. **执行测试**:
+   - 选择 "校园食堂系统环境"
+   - 运行整个测试集合或单个接口
+
+3. **测试覆盖**:
+   - ✅ 用户注册登录
+   - ✅ 食堂窗口菜品管理
+   - ✅ 评价点赞回复功能
+   - ✅ 管理员权限接口
+   - ✅ 文件上传功能
+
 ### 运行API测试
 
 ```bash
@@ -287,7 +313,7 @@ canteen-score/
 python run.py
 
 # 在另一个终端运行测试
-python test_api.py
+python test/test_api.py
 ```
 
 ### 手动测试
@@ -379,8 +405,11 @@ CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:5000", "run:app"]
 
 ## 联系方式
 
-如有问题或建议，请提交Issue或联系开发团队。
+- **GitHub**: [jovan-zhang/canteen-score](https://github.com/jovan-zhang/canteen-score)
+- **Issues**: [提交问题](https://github.com/jovan-zhang/canteen-score/issues)
+
+如有问题或建议，欢迎提交Issue或Pull Request。
 
 ---
 
-**项目状态**: ✅ 开发完成，可用于生产环境
+**项目状态**: ✅ 开发完成，功能齐全，可用于生产环境
