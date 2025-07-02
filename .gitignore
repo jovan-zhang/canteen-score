@@ -1,0 +1,14 @@
+.idea/
+.vscode/
+static/
+__pycache__/
+*.pyc
+*.db
+instance/
+uploads/
+.env
+test_fixes.py
+test_users.py
+test_canteen.py
+test_api.py
+
