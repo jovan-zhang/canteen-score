@@ -1,3 +1,4 @@
+> 该项目大量代码由ai生成
 # 校园食堂菜品打分系统
 
 [![GitHub stars](https://img.shields.io/github/stars/jovan-zhang/canteen-score.svg)](https://github.com/jovan-zhang/canteen-score/stargazers)
