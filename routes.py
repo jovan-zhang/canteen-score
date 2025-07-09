@@ -1041,6 +1041,89 @@ def get_rating_distribution():
         return jsonify({'code': 500, 'message': f'服务器错误: {str(e)}'}), 500
 
 
+# ================== AI菜品识别接口 ==================
+
+@app.route('/api/classify-dish', methods=['POST'])
+def classify_dish():
+    """
+    AI菜品图片识别接口
+    上传图片文件，返回AI识别的菜品名称
+    注意：此接口为独立的AI识别模块，不需要登录认证
+    """
+    try:
+        # 检查是否有文件
+        if 'image' not in request.files:
+            return jsonify({'code': 400, 'message': '请上传图片文件'}), 400
+        
+        file = request.files['image']
+        if file.filename == '':
+            return jsonify({'code': 400, 'message': '未选择文件'}), 400
+        
+        # 检查文件类型
+        if not allowed_file(file.filename):
+            return jsonify({'code': 400, 'message': '不支持的文件格式，请上传 PNG、JPG、JPEG 或 GIF 格式的图片'}), 400
+        
+        # 保存上传的文件到临时目录
+        upload_dir = os.path.join(app.config['UPLOAD_FOLDER'], 'temp')
+        filename = save_uploaded_file(file, upload_dir)
+        
+        if not filename:
+            return jsonify({'code': 400, 'message': '文件保存失败'}), 400
+        
+        # 获取图片的绝对路径
+        image_path = os.path.abspath(os.path.join(upload_dir, filename))
+        
+        # 调用AI分类模型
+        try:
+            import sys
+            import importlib.util
+            
+            # 动态加载模块
+            classifier_path = os.path.join(os.path.dirname(__file__), 'resnet_classifier')
+            predict_module_path = os.path.join(classifier_path, 'resnet_predict.py')
+            
+            spec = importlib.util.spec_from_file_location("resnet_predict", predict_module_path)
+            resnet_predict = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(resnet_predict)
+            
+            # 执行AI识别
+            result = resnet_predict.predict_image(image_path)
+            
+            # 清理临时文件
+            try:
+                os.remove(image_path)
+            except:
+                pass
+            
+            # 检查预测结果
+            if 'error' in result:
+                return jsonify({'code': 500, 'message': f'AI识别失败: {result["error"]}'}), 500
+            
+            return jsonify({
+                'code': 200,
+                'message': '识别成功',
+                'data': {
+                    'dish_name': result['name'],
+                    'confidence': round(result.get('confidence', 0) * 100, 2)  # 置信度转换为百分比
+                }
+            })
+            
+        except ImportError:
+            return jsonify({'code': 500, 'message': 'AI模型未正确安装或配置，请联系管理员'}), 500
+        except Exception as e:
+            # 确保清理临时文件
+            try:
+                os.remove(image_path)
+            except:
+                pass
+            return jsonify({'code': 500, 'message': f'AI识别过程中出错: {str(e)}'}), 500
+            
+    except Exception as e:
+        return jsonify({'code': 500, 'message': f'服务器错误: {str(e)}'}), 500
+
+
+
+
 # ================== 错误处理 ==================
 
 @app.errorhandler(404)

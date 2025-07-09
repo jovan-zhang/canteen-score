@@ -656,7 +656,157 @@
       ]
     },
     {
-      "name": "7. 统计接口",
+      "name": "7. AI菜品识别",
+      "item": [
+        {
+          "name": "菜品图片识别",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// 测试响应状态",
+                  "pm.test('状态码为200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "// 测试响应格式",
+                  "pm.test('响应格式正确', function () {",
+                  "    const responseJson = pm.response.json();",
+                  "    pm.expect(responseJson).to.have.property('code');",
+                  "    pm.expect(responseJson).to.have.property('message');",
+                  "    pm.expect(responseJson).to.have.property('data');",
+                  "});",
+                  "",
+                  "// 测试AI识别结果",
+                  "pm.test('AI识别成功', function () {",
+                  "    const responseJson = pm.response.json();",
+                  "    if (responseJson.code === 200) {",
+                  "        pm.expect(responseJson.data).to.have.property('dish_name');",
+                  "        pm.expect(responseJson.data).to.have.property('confidence');",
+                  "        pm.expect(responseJson.data.confidence).to.be.a('number');",
+                  "        pm.expect(responseJson.data.confidence).to.be.within(0, 100);",
+                  "    }",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "multipart/form-data",
+                "disabled": true
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "image",
+                  "type": "file",
+                  "src": [],
+                  "description": "上传菜品图片（支持PNG、JPG、JPEG、GIF格式）"
+                }
+              ]
+            },
+            "url": {
+              "raw": "http://localhost:5000/api/classify-dish",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5000",
+              "path": [
+                "api",
+                "classify-dish"
+              ]
+            },
+            "description": "独立的AI菜品识别接口，无需认证。上传图片返回菜品名称和置信度。"
+          },
+          "response": [
+            {
+              "name": "识别成功示例",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "key": "image",
+                      "type": "file",
+                      "src": "test_dish.jpg"
+                    }
+                  ]
+                },
+                "url": {
+                  "raw": "http://localhost:5000/api/classify-dish",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "5000",
+                  "path": [
+                    "api",
+                    "classify-dish"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"code\": 200,\n  \"message\": \"识别成功\",\n  \"data\": {\n    \"dish_name\": \"fried rice\",\n    \"confidence\": 89.25\n  }\n}"
+            },
+            {
+              "name": "无文件错误示例",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "formdata",
+                  "formdata": []
+                },
+                "url": {
+                  "raw": "http://localhost:5000/api/classify-dish",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "5000",
+                  "path": [
+                    "api",
+                    "classify-dish"
+                  ]
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"code\": 400,\n  \"message\": \"请上传图片文件\"\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "8. 统计接口",
       "item": [
         {
           "name": "系统概览统计",
@@ -727,7 +877,7 @@
       ]
     },
     {
-      "name": "8. 管理员功能",
+      "name": "9. 管理员功能",
       "item": [
         {
           "name": "获取用户列表",

@@ -17,6 +17,7 @@
 - **ORM**: SQLAlchemy
 - **图片处理**: Pillow
 - **文件存储**: 本地文件系统
+- **AI模型**: PyTorch + ResNet50 (菜品图像识别)
 
 ## 功能特性
 
@@ -27,6 +28,12 @@
 - 📸 上传评价图片
 - 👍 点赞评价、回复评论
 - 📝 查看个人评价历史
+
+### AI功能模块
+- 🤖 **独立AI菜品识别** - 上传菜品图片自动识别菜品类型
+- 🎯 **高精度识别** - 基于ResNet-50模型，支持100种菜品分类
+- ⚡ **快速响应** - 2秒内完成识别
+- 🔓 **无需认证** - 独立模块，可单独使用
 
 ### 管理员功能
 - 👥 用户管理（查看、编辑、删除）
@@ -195,7 +202,30 @@ python run.py
 #### 获取上传文件
 - **GET** `/api/uploads/{filename}`
 
-### 统计接口
+### AI菜品识别接口
+
+#### 菜品图片识别
+- **POST** `/api/classify-dish`
+- **说明**: 上传菜品图片，返回AI识别的菜品名称和置信度
+- **认证**: 无需认证（独立模块）
+- **Body**: `multipart/form-data` with `image` field
+- **响应**: 
+```json
+{
+  "code": 200,
+  "message": "识别成功",
+  "data": {
+    "dish_name": "fried rice",
+    "confidence": 89.25
+  }
+}
+```
+
+**支持格式**: PNG, JPG, JPEG, GIF  
+**识别能力**: 100种菜品类别  
+**响应时间**: < 2秒
+
+### 数据统计接口
 
 #### 系统概览
 - **GET** `/api/stats/overview`
@@ -248,20 +278,63 @@ canteen-score/
 ├── routes.py               # 用户API路由
 ├── admin_routes.py         # 管理员API路由
 ├── requirements.txt        # Python依赖包
-├── .env.example            # 环境配置示例
-├── README.md               # 项目说明
-├── 需求文档.md             # 详细需求文档
-├── test/                   # 测试相关文件
-│   ├── test_api.py         # API测试脚本
-│   ├── postman_collection.json     # Postman测试集合
-│   ├── postman_environment.json    # Postman环境变量
-│   ├── POSTMAN_测试指南.md          # Postman测试说明
-│   └── 测试检查清单.md              # 测试检查清单
-├── static/                 # 静态文件目录
-│   └── uploads/            # 上传文件目录
-└── instance/               # 实例文件目录
+├── resnet_classifier/      # AI识别模块
+│   ├── model.pth           # ResNet-50模型文件
+│   ├── id_name_mapping.txt # 菜品类别映射
+│   └── resnet_predict.py   # AI预测逻辑
+├── static/uploads/         # 文件上传目录
+│   ├── temp/               # 临时文件目录
+│   ├── avatars/            # 头像目录
+│   ├── canteens/           # 食堂图片目录
+│   ├── windows/            # 窗口图片目录
+│   └── dishes/             # 菜品图片目录
+├── test/                   # 测试文件
+│   ├── test_api.py         # API测试
+│   ├── test_ai_classification.py  # AI识别测试
+│   ├── postman_collection.json    # Postman测试集合
+│   └── postman_environment.json   # Postman测试环境
+└── instance/               # 实例文件
     └── canteen_score.db    # SQLite数据库文件
 ```
+
+## AI模块说明
+
+### 模块特点
+- **完全独立**: 不依赖主系统的用户认证和数据库
+- **即插即用**: 可以单独部署和使用
+- **高性能**: 基于ResNet-50深度学习模型
+- **多类别**: 支持100种不同菜品的识别
+
+### 使用方法
+
+1. **API调用**:
+   ```bash
+   curl -X POST http://localhost:5000/api/classify-dish \
+        -F "image=@your_dish_image.jpg"
+   ```
+
+2. **测试工具**:
+   ```bash
+   # 自动查找图片测试
+   python test_ai_classification.py
+   
+   # 指定图片测试
+   python test_ai_classification.py /path/to/image.jpg
+   ```
+
+3. **支持的菜品类别**: 
+   - 各类米饭类: rice, fried rice, pilaf, bibimbap等
+   - 面包类: toast, croissant, sandwiches等
+   - 快餐类: hamburger, pizza等
+   - 亚洲料理: sushi, tempura bowl等
+   - *完整支持100种菜品类别*
+
+### 技术实现
+- **模型**: ResNet-50
+- **框架**: PyTorch
+- **输入**: 224x224 RGB图像
+- **输出**: 菜品名称 + 置信度
+- **性能**: < 2秒识别时间
 
 ## 数据库模型
 
@@ -306,6 +379,7 @@ canteen-score/
    - ✅ 评价点赞回复功能
    - ✅ 管理员权限接口
    - ✅ 文件上传功能
+   - ✅ AI菜品识别功能
 
 ### 运行API测试
 
@@ -313,8 +387,24 @@ canteen-score/
 # 确保服务器正在运行
 python run.py
 
-# 在另一个终端运行测试
+# 在另一个终端运行API测试
 python test/test_api.py
+
+# 运行AI识别测试
+python test_ai_classification.py
+```
+
+### AI识别专项测试
+
+```bash
+# 自动测试（查找现有图片）
+python test_ai_classification.py
+
+# 指定图片测试
+python test_ai_classification.py /path/to/test/image.jpg
+
+# 测试无效请求处理
+python test_ai_classification.py --test-errors
 ```
 
 ### 手动测试

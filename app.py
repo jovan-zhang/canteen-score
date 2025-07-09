@@ -37,6 +37,7 @@ os.makedirs('static/uploads/canteens', exist_ok=True)
 os.makedirs('static/uploads/windows', exist_ok=True)
 os.makedirs('static/uploads/dishes', exist_ok=True)
 os.makedirs('static/uploads/avatars', exist_ok=True)
+os.makedirs('static/uploads/temp', exist_ok=True)  # 临时文件目录
 
 # 允许的图片格式
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}

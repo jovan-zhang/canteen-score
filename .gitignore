@@ -2,8 +2,6 @@
 .vscode/
 __pycache__/
 *.pyc
-*.db
-instance/*.db
 instance/*.sqlite
 instance/*.sqlite3
 uploads/
